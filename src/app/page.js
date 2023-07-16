@@ -65,6 +65,8 @@ export default function Home() {
   );
 }
 
+// Updated "set_claim" Supabase function
+
 // BEGIN
 //   IF value = '"gi-member"' THEN
 //     update auth.users set raw_app_meta_data =
