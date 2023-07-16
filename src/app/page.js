@@ -1,95 +1,82 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+import { useEffect } from "react";
+import styles from "./page.module.css";
+import { createClient } from "@supabase/supabase-js";
 
 export default function Home() {
+  const supabaseURL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_ANON_KEY;
+
+  useEffect(() => {
+    console.log("supabaseURL", supabaseURL);
+    console.log("anonKey", anonKey);
+  }, []);
+
+  const supabase = createClient(supabaseURL, anonKey);
+
+  // useEffect(() => {
+  //   supabase.auth.onAuthStateChange((_event, session) => {
+  //     if (session?.user) {
+  //       console.log("session", session?.user); // show custom claims
+  //     }
+  //   });
+  // },[]);
+
+  const handleSignup = async () => {
+    const { data, error } = await supabase.auth.signUp({
+      email: "lkmsasanga@gmail.com",
+      password: "example-password",
+    });
+
+    console.log("data", data);
+    console.log("error", error);
+  };
+
+  const handleLogin = async () => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: "lkmsasanga@gmail.com",
+      password: "example-password",
+    });
+
+    console.log("login", data);
+    console.log("error", error);
+  };
+
+  const handleClaims = async () => {
+    const { data, error } = await supabase.rpc("set_claim", {
+      uid: "aa07c48f-03e8-4f29-9264-8c261e5bd35d",
+      claim: "role",
+      value: "gi-member",
+    });
+
+    // const { data, error } = await supabase
+    //   .rpc('get_my_claims', {});
+
+    console.log("set claim", data);
+    console.log("set claim err", error);
+  };
+
   return (
     <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+      <button onClick={handleSignup}>signup</button>
+      <button onClick={handleLogin}>Login</button>
+      <button onClick={handleClaims}>set claims</button>
     </main>
-  )
+  );
 }
+
+// BEGIN
+//   IF value = '"gi-member"' THEN
+//     update auth.users set raw_app_meta_data =
+//       raw_app_meta_data ||
+//         json_build_object(claim, value)::jsonb where id = uid;
+//     return 'OK';
+//   ELSIF NOT is_claims_admin() OR  THEN
+//       RETURN 'error: access denied';
+//   ELSE
+//     update auth.users set raw_app_meta_data =
+//       raw_app_meta_data ||
+//         json_build_object(claim, value)::jsonb where id = uid;
+//     return 'OK';
+//   END IF;
+// END;
